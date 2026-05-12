@@ -7,12 +7,13 @@ An open-source package to simulate strongly correlated molecules coupled to quan
 - Supports correlated levels including: QED-FCI, QED-CASCI, SA-QED-CASSCF
 - Supports analytic gradients for ground- and excited- (polariton) states at the SA-QED-CASSCF level
 
-Within the src/ directory:
+Within the `src/` directory (source-only):
 
 - helper_cqed_rhf.py provides restricted hartree fock for the Pauli-Fierz Hamiltonian in the coherent state basis
-- helper_cs_cqed_cis.py provides spin-adapted QED-CIS for Pauli-Fierz Hamiltonian in the coherent state basis
-- helper_PFCI.py provides helper functions for arbitrary CI with Pauli-Fierz Hamiltonian, should be adapted to build PF Hamiltonian
+- helper_PFCI.py provides helper functions for arbitrary CI with Pauli-Fierz Hamiltonian
+- gmres.py, residual_minimization.py, ortho_script.py, and nuclear_grad.py provide supporting numerical routines
 
+Example workflows and run scripts now live in `examples/`.
 
 
 ## Getting Started
@@ -33,12 +34,14 @@ From source (harder option):
 
 Note other python dependencies should be installed if you used the Conda option.  Other dependencies include numpy and scipy.
 
-**3. Install intel oneapi**
+**3. Build the native C helpers**
 
-**4. Compile the code with intel compiler:**
-- icx -fPIC -Wall -Wextra -qopenmp -c ci_solver.c orbital.c 
-- icx -shared -o cfunctions.so ci_solver.o orbital.o
+See `BUILDING.md` for Linux/Intel and macOS/Apple Silicon options.
 
-**5. Run tests** 
-- From the main repository directory (qed-ci), move into the source directory with `cd src/`
-- run tests with `pytest -v`
+Quick examples:
+- `make`
+- `make CC=icx`
+- `make CC=clang BLAS=accelerate`
+
+**4. Run tests** 
+- From the repository root (`qed-ci/`), run `pytest -v tests/`
