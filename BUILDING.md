@@ -9,16 +9,48 @@ pip install numba
 make
 ```
 
-## Linux + Intel oneAPI
+Use `make show-config` to inspect detected compiler/backend/include/lib flags.
 
-Use Intel compiler and OpenMP:
+## Linux + Intel oneAPI (MKL)
+
+Activate your environment first (example from your setup):
+
+```bash
+conda activate p4dev
+```
+
+If oneAPI is installed system-wide, source the oneAPI environment before building:
+
+```bash
+source /opt/intel/oneapi/setvars.sh
+```
+
+Then build with Intel compiler and MKL:
 
 ```bash
 make clean
-make CC=icx
+make CC=icx BACKEND=mkl
 ```
 
-This maps to your current workflow (`icx ... -qopenmp ...`).
+### If `#include <mkl.h>` is not found
+
+MKL headers are often inside either:
+- `$MKLROOT/include` (oneAPI installs), or
+- `$CONDA_PREFIX/include` (conda installs; with `p4dev`, this is that env path while activated).
+
+You can find them with:
+
+```bash
+find "$CONDA_PREFIX" -name mkl.h 2>/dev/null
+find "$CONDA_PREFIX" -name mkl_lapacke.h 2>/dev/null
+```
+
+If needed, set `MKLROOT` explicitly:
+
+```bash
+make clean
+make CC=icx BACKEND=mkl MKLROOT=/path/to/mkl
+```
 
 ## macOS Apple Silicon
 
@@ -26,7 +58,7 @@ This maps to your current workflow (`icx ... -qopenmp ...`).
 
 ```bash
 make clean
-make CC=clang BLAS=accelerate
+make CC=clang BACKEND=accelerate
 ```
 
 ### Option B: OpenBLAS
@@ -34,7 +66,7 @@ make CC=clang BLAS=accelerate
 ```bash
 brew install openblas
 make clean
-make CC=clang OPENBLAS_PREFIX=/opt/homebrew/opt/openblas
+make CC=clang BACKEND=openblas OPENBLAS_PREFIX=/opt/homebrew/opt/openblas
 ```
 
 If you need OpenMP on macOS:
@@ -42,11 +74,11 @@ If you need OpenMP on macOS:
 ```bash
 brew install libomp
 make clean
-make CC=clang BLAS=accelerate OPENMP=1
+make CC=clang BACKEND=accelerate OPENMP=1
 ```
 
 ## Notes
 
-- `BLAS=accelerate` is only relevant on macOS.
+- Default backend is `mkl` on Linux and `accelerate` on macOS.
 - Default compiler is `cc`; override with `CC=icx`, `CC=clang`, or `CC=gcc`.
 - `make clean` removes object files and `src/cfunctions.so`.
