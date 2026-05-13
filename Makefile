@@ -30,16 +30,27 @@ ifeq ($(CC),icx)
 endif
 
 ifeq ($(OPENMP),1)
+  ifneq ($(CONDA_PREFIX),)
+    CPPFLAGS += -I$(CONDA_PREFIX)/include
+    LDFLAGS += -L$(CONDA_PREFIX)/lib
+  endif
+  ifneq ($(LIBOMP_PREFIX),)
+    CPPFLAGS += -I$(LIBOMP_PREFIX)/include
+    LDFLAGS += -L$(LIBOMP_PREFIX)/lib
+  endif
   ifeq ($(CC),clang)
     CFLAGS += -Xpreprocessor -fopenmp
   else
     CFLAGS += -fopenmp
   endif
   LDLIBS += -lomp
+else
+  CFLAGS += -Wno-unknown-pragmas
 endif
 
 # --- Backend-specific flags ---
 ifeq ($(BACKEND),mkl)
+  CPPFLAGS += -DQEDCI_USE_MKL
   # Prefer explicit MKLROOT; fallback to CONDA_PREFIX for conda MKL installs.
   ifneq ($(MKLROOT),)
     CPPFLAGS += -I$(MKLROOT)/include
@@ -53,10 +64,13 @@ ifeq ($(BACKEND),mkl)
 endif
 
 ifeq ($(BACKEND),accelerate)
+  CPPFLAGS += -DQEDCI_USE_ACCELERATE
+  CFLAGS += -Wno-deprecated-declarations
   LDLIBS += -framework Accelerate
 endif
 
 ifeq ($(BACKEND),openblas)
+  CPPFLAGS += -DQEDCI_USE_OPENBLAS
   LDLIBS += -lopenblas
   ifneq ($(OPENBLAS_PREFIX),)
     CPPFLAGS += -I$(OPENBLAS_PREFIX)/include

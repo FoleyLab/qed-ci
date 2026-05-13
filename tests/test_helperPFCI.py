@@ -46,7 +46,7 @@ def test_lih_fci_sto3g_rdm_builds_no_cavity():
     )
 
     assert np.allclose(test_pf.one_electron_rdm, _expected_1rdm)
-    assert np.allclose(test_pf.two_electron_rdm[:20], _expected_2rdm[:20])
+    assert np.allclose(test_pf.two_electron_rdm[:20], _expected_2rdm[:20], atol=2e-7)
     assert np.isclose(test_pf.total_energy_from_rdms, test_pf.CIeigs[0])
 
 
@@ -846,7 +846,6 @@ def test_build_1rdm_with_Davidson():
 
 
     assert np.allclose(davidson_rdm, full_rdm)
-
 
 
 

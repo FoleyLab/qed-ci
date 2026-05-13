@@ -41,7 +41,7 @@ See `BUILDING.md` for Linux/Intel and macOS/Apple Silicon options.
 Quick examples:
 - `make`
 - `make CC=icx`
-- `make CC=clang BLAS=accelerate`
+- `make CC=clang BACKEND=accelerate`
 
 **4. Run tests** 
 - From the repository root (`qed-ci/`), run `pytest -v tests/`

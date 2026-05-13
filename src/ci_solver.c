@@ -3,12 +3,32 @@
 #include "ci_solver.h"
 #include <string.h>
 #include <math.h>
-#include <mkl.h>
-#include<omp.h>
 #include<time.h>
-#include "mkl_lapacke.h"
 #include <unistd.h>
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#ifdef _OPENMP
+#include <omp.h>
+#else
+static double qedci_wtime(void) {
+    return (double) clock() / (double) CLOCKS_PER_SEC;
+}
+#define omp_get_wtime qedci_wtime
+#endif
+
+#ifdef QEDCI_USE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#ifdef ACCELERATE_NEW_LAPACK
+typedef __LAPACK_int qedci_lapack_int;
+#else
+typedef __CLPK_integer qedci_lapack_int;
+#endif
+#elif defined(QEDCI_USE_MKL)
+#include <mkl.h>
+#else
+#include <cblas.h>
+#include <lapacke.h>
+#endif
+
+#define CI_MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define BIGNUM 1E100
 
 
@@ -64,7 +84,7 @@ int binomialCoeff(int n, int k)
     for (int i = 1; i <= n; i++) {
         // Compute next row of pascal triangle using
         // the previous row
-        for (int j = MIN(i, k); j > 0; j--)
+        for (int j = CI_MIN(i, k); j > 0; j--)
             C[j] = C[j] + C[j - 1];
     }
     return C[k];
@@ -1189,11 +1209,51 @@ void constant_terms_contraction(double* c_vectors,double* c1_vectors,int num_alp
 }
 
 void symmetric_eigenvalue_problem(double* A, int N, double* eig) {
-    MKL_INT n = N, lda = N, info;	
-    //double w[N];
-    
-    /* Solve eigenproblem */
-    info = LAPACKE_dsyev( LAPACK_ROW_MAJOR, 'V', 'U', n, A, lda, eig);
+    int info = 0;
+
+#ifdef QEDCI_USE_ACCELERATE
+    qedci_lapack_int n = N, lda = N, lwork = -1;
+    qedci_lapack_int lapack_info = 0;
+    double work_query = 0.0;
+    double* A_colmajor = (double*) malloc((size_t) N * (size_t) N * sizeof(double));
+    if (A_colmajor == NULL) {
+        printf("Failed to allocate temporary eigenproblem matrix.\n");
+        exit(1);
+    }
+
+    for (int row = 0; row < N; row++) {
+        for (int col = 0; col < N; col++) {
+            A_colmajor[(size_t) row + (size_t) col * (size_t) N] = A[(size_t) row * (size_t) N + (size_t) col];
+        }
+    }
+
+    dsyev_("V", "U", &n, A_colmajor, &lda, eig, &work_query, &lwork, &lapack_info);
+    if (lapack_info == 0) {
+        lwork = (qedci_lapack_int) work_query;
+        double* work = (double*) malloc((size_t) lwork * sizeof(double));
+        if (work == NULL) {
+            free(A_colmajor);
+            printf("Failed to allocate temporary eigenproblem workspace.\n");
+            exit(1);
+        }
+        dsyev_("V", "U", &n, A_colmajor, &lda, eig, work, &lwork, &lapack_info);
+        free(work);
+    }
+
+    info = (int) lapack_info;
+    if (info == 0) {
+        for (int row = 0; row < N; row++) {
+            for (int col = 0; col < N; col++) {
+                A[(size_t) row * (size_t) N + (size_t) col] = A_colmajor[(size_t) row + (size_t) col * (size_t) N];
+            }
+        }
+    }
+    free(A_colmajor);
+#else
+    lapack_int n = N, lda = N;
+    info = LAPACKE_dsyev(LAPACK_ROW_MAJOR, 'V', 'U', n, A, lda, eig);
+#endif
+
     /* Check for convergence */
     if( info > 0 ) {
             printf( "The algorithm failed to compute eigenvalues.\n" );
@@ -3590,6 +3650,13 @@ void getMemory2(
 
     // linux file contains this-process info
     FILE* file = fopen("/proc/self/status", "r");
+    if (file == NULL) {
+        *currRealMem = 0;
+        *peakRealMem = 0;
+        *currVirtMem = 0;
+        *peakVirtMem = 0;
+        return;
+    }
 
     // read the entire file
     while (fscanf(file, " %1023s", buffer) == 1) {
@@ -3611,4 +3678,3 @@ void getMemory2(
     printf("resident%20.12lf peak resident%20.12lf\n",(double)*currRealMem/1024.0/1024.0,(double)*peakRealMem/1024.0/1024.0);
 
 }
-
