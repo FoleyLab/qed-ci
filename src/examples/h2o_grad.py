@@ -1,7 +1,4 @@
 import numpy as np
-import sys
-sys.path.append("/home/nvu12/software/qed_ci_main/qed_ci_casscf7/qed-ci/src/")
-#sys.path.append("/home/nvu12/software/qed_ci_main/qed_ci_112123/qed-ci/src/")
 #np.set_printoptions(precision=5, linewidth=200, suppress=True)
 import psi4
 from helper_PFCI import PFHamiltonianGenerator
