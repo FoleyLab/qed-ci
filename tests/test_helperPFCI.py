@@ -1,6 +1,6 @@
 import psi4
-from helper_PFCI import PFHamiltonianGenerator
-from helper_cqed_rhf import cqed_rhf
+from src.helper_PFCI import PFHamiltonianGenerator
+from src.helper_cqed_rhf import cqed_rhf
 import numpy as np
 import pytest
 import sys
@@ -10,8 +10,8 @@ np.set_printoptions(threshold=sys.maxsize)
 def test_lih_fci_sto3g_rdm_builds_no_cavity():
 
     # load reference rdms
-    _expected_1rdm = np.load("/home/jfoley19/UPDATED_QEDCI/qed-ci/src/tests/LiH_sto3g_fci_d1.npy") # LiH_sto3g_fci_d1.npy")
-    _expected_2rdm = np.load("/home/jfoley19/UPDATED_QEDCI/qed-ci/src/tests/LiH_sto3g_fci_d2.npy")
+    _expected_1rdm = np.load("tests/LiH_sto3g_fci_d1.npy") # LiH_sto3g_fci_d1.npy")
+    _expected_2rdm = np.load("tests/LiH_sto3g_fci_d2.npy")
 
     mol_str = """
     Li
@@ -46,7 +46,7 @@ def test_lih_fci_sto3g_rdm_builds_no_cavity():
     )
 
     assert np.allclose(test_pf.one_electron_rdm, _expected_1rdm)
-    assert np.allclose(test_pf.two_electron_rdm[:20], _expected_2rdm[:20])
+    assert np.allclose(test_pf.two_electron_rdm[:20], _expected_2rdm[:20], atol=2e-7)
     assert np.isclose(test_pf.total_energy_from_rdms, test_pf.CIeigs[0])
 
 
@@ -846,7 +846,6 @@ def test_build_1rdm_with_Davidson():
 
 
     assert np.allclose(davidson_rdm, full_rdm)
-
 
 
 

@@ -1,5 +1,4 @@
-import sys
-sys.path.append("/Users/jfoley19/Code/qed-ci/src/")
+
 import psi4
 from helper_PFCI import PFHamiltonianGenerator
 import numpy as np

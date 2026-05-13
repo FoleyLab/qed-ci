@@ -1,6 +1,13 @@
-# Utilizes the psi4numpy helper_CI machinery to do QED-CI up to QED-FCI.
+# QED-CI
+An open-source package to simulate strongly correlated molecules coupled to quantized cavity modes.
 
-Within the src/ directory:
+## Features
+
+- Supports restricted references at the RHF or CQED-RHF levels, where the coherent state transformation is used for CQED-RHF
+- Supports correlated levels including: QED-FCI, QED-CASCI, SA-QED-CASSCF
+- Supports analytic gradients for ground- and excited- (polariton) states at the SA-QED-CASSCF level
+
+Within the `src/` directory (source-only):
 
 - helper_cqed_rhf.py provides restricted hartree fock for the Pauli-Fierz Hamiltonian in the coherent state basis
 - helper_cs_cqed_cis.py provides spin-adapted QED-CIS for Pauli-Fierz Hamiltonian in the coherent state basis
