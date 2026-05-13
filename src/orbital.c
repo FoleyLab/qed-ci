@@ -3,8 +3,16 @@
 #include "orbital.h"
 #include <string.h>
 #include <math.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+#ifdef QEDCI_USE_ACCELERATE
+#include <Accelerate/Accelerate.h>
+#elif defined(QEDCI_USE_MKL)
 #include <mkl.h>
-#include<omp.h>
+#else
+#include <cblas.h>
+#endif
 #include<time.h>
 #include <unistd.h>
 
@@ -1132,5 +1140,4 @@ free(A3);
 
 
 }
-
 

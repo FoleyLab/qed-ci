@@ -2487,6 +2487,59 @@ class PFHamiltonianGenerator:
                         "{:20.12f}".format(sum_energy),
                         "{:20.12f}".format(eigenvals[i] - sum_energy),
                     )
+                    if self.rdm_root == i:
+                        one_rdm = np.zeros((self.n_occupied * self.n_occupied))
+                        two_rdm = np.zeros(
+                            (
+                                self.n_occupied
+                                * self.n_occupied
+                                * self.n_occupied
+                                * self.n_occupied
+                            )
+                        )
+                        Dpe = np.zeros((self.n_occupied * self.n_occupied))
+                        c_build_one_rdm(
+                            eigenvecs,
+                            eigenvecs,
+                            one_rdm,
+                            self.table,
+                            self.n_act_a,
+                            self.n_act_orb,
+                            self.n_in_a,
+                            np1,
+                            i,
+                            i,
+                            False,
+                        )
+                        c_build_two_rdm(
+                            eigenvecs,
+                            eigenvecs,
+                            two_rdm,
+                            self.table,
+                            self.n_act_a,
+                            self.n_act_orb,
+                            self.n_in_a,
+                            np1,
+                            i,
+                            i,
+                            False,
+                        )
+                        c_build_photon_electron_one_rdm(
+                            eigenvecs,
+                            eigenvecs,
+                            Dpe,
+                            self.table,
+                            self.n_act_a,
+                            self.n_act_orb,
+                            self.n_in_a,
+                            np1,
+                            i,
+                            i,
+                        )
+                        self.one_electron_rdm = one_rdm
+                        self.one_electron_one_photon_rdm = Dpe
+                        self.two_electron_rdm = two_rdm
+                        self.total_energy_from_rdms = sum_energy
                 # print(self.Dpe_tu.reshape((self.n_act_orb,self.n_act_orb))-self.Dpe_tu.reshape((self.n_act_orb,self.n_act_orb)).transpose())
                 # self.gkl3 = np.zeros((self.n_act_orb, self.n_act_orb))
                 # self.twoeint3 = np.zeros((self.nmo * self.nmo, self.nmo * self.nmo))
@@ -10822,7 +10875,7 @@ class PFHamiltonianGenerator:
         """void(float64[:,::1], float64[:,::1], int64[:,::1], float64[:,::1], float64[:,::1], float64[:,::1], float64[:,::1], float64[:,::1],
             int64, int64, int64, int64, int64, int64, int64)""",
         nopython=True,
-        cache=True,
+        cache=False,
         fastmath=True,
         parallel=False,
     )
@@ -26423,7 +26476,7 @@ class PFHamiltonianGenerator:
         """float64[::1](float64[:,::1], float64[:,::1], int64[:,::1], float64[:,::1], float64[:,::1], 
             int64, int64, int64, int64, int64, float64)""",
         nopython=True,
-        cache=True,
+        cache=False,
         fastmath=True,
         parallel=False,
     )

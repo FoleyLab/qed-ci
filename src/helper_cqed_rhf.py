@@ -29,9 +29,11 @@ def b_coefficient(error_vectors):
     rhs[-1, -1] = -1
     for i in range(len(error_vectors)):
         for j in range(i + 1):
-            b_mat[i, j] = np.dot(error_vectors[i].transpose(), error_vectors[j])
+            b_mat[i, j] = np.asarray(
+                np.dot(error_vectors[i].transpose(), error_vectors[j])
+            ).item()
             b_mat[j, i] = b_mat[i, j]
-    *diis_coeff, _ = np.linalg.solve(b_mat, rhs)
+    diis_coeff = np.linalg.solve(b_mat, rhs).ravel()[:-1]
     return diis_coeff
 
 
