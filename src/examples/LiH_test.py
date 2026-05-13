@@ -1,8 +1,6 @@
 from oo_cqed_rhf import CQEDRHFCalculator
 import numpy as np
 import psi4
-import sys
-sys.path.append("/home/jfoley19/Code/qed-ci/src/")
 from helper_PFCI import PFHamiltonianGenerator
 from helper_PFCI import Determinant
 from helper_cqed_rhf import cqed_rhf
