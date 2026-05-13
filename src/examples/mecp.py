@@ -5,8 +5,8 @@ from ase import Atoms
 from ase.io import write
 
 # --- 1. SETUP ENVIRONMENT & CALCULATOR ---
-# Path to your custom plugin
-sys.path.append("/home/nvu12/software/qed_ci_main/qed_ci_casscf9/qed-ci/src/")
+# Optional: Path to your custom plugin
+# sys.path.append("/home/nvu12/software/qed_ci_main/qed_ci_casscf9/qed-ci/src/")
 import psi4
 from nuclear_grad import *
 
