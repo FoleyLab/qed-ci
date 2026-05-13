@@ -1,6 +1,4 @@
 # set path to the directory where helper_PFCI.py is located
-import sys
-sys.path.append("/home/jfoley19/gm_casscf/qed-ci/src/")
 
 # import helper libraries
 import numpy as np
