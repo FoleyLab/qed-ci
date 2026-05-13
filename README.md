@@ -10,29 +10,16 @@ An open-source package to simulate strongly correlated molecules coupled to quan
 Within the `src/` directory (source-only):
 
 - helper_cqed_rhf.py provides restricted hartree fock for the Pauli-Fierz Hamiltonian in the coherent state basis
-- helper_cs_cqed_cis.py provides spin-adapted QED-CIS for Pauli-Fierz Hamiltonian in the coherent state basis
-- helper_PFCI.py provides helper functions for arbitrary CI with Pauli-Fierz Hamiltonian, should be adapted to build PF Hamiltonian
+- helper_PFCI.py provides helper functions for arbitrary CI with Pauli-Fierz Hamiltonian
+- gmres.py, residual_minimization.py, ortho_script.py, and nuclear_grad.py provide supporting numerical routines
 
-## Description
-Updates to helper_PFCI towards PF-CASCI calculations in different orbital bases
-
-## Todos
-The generation of determinant lists has been broken up into two methods based on the appropriate CI Level.  Keywords for the CI level can now be passed to methods for building the PF Hamiltonian. A method for computing the 1RDM from the CIS determinants based on @nhv17 's  implementation has been added.
-  - [X]  generateCISDeterminants will create the CIS determinants and store associated information to attributes with "CIS" in the name, e.g. .CISdets"
-  - [X] .CISexcitation_index and .CISsingdetsign for use in computing the CIS 1RDM is computed by generateCISDeterminants
-  - [X] generateCASDeterminants will create the CASCI determinants and associated information to attributes with "CAS" in the name, e.g. .CASdets
-  - [X] buildConstantMatrices now takes a keyword for the CI Level (e.g. "CIS" or "CAS") and will build numDet x numDet constant matrices appropriately
-  - [X] generatePFHMatrix now takes a keyword for the CI level (e.g. "CIS" or "CAS") and will use the appropriate determinant list to build the CI matrix
-  - [X] calc1RDMfromCIS(c_vec) will compute the 1-RDM from a given CIS vector using the CISsingdetssign information determined by the generateCISDeterminants method.  It must be supplied a CIS vector for a desired state following diagonalizing H_CIS
-  - [ ] Code still needs to be added to form the natural orbitals
-  - [ ] Code still needs to be added to form the CASCI Hamiltonian in a desired orbital basis
-  - [ ] Unit tests for things like the trace of the 1RDMs and the 1e energy should be added sooner than later
+Example workflows and run scripts now live in `examples/`.
 
 
 ## Getting Started
-**0.  Clone repo** 
+**0.  Clone repo**
 
-**1.  Install psi4** 
+**1.  Install psi4**
 
 Using Conda (easy option):
 - conda install psi4 python=3.10 -c conda-forge
@@ -47,12 +34,14 @@ From source (harder option):
 
 Note other python dependencies should be installed if you used the Conda option.  Other dependencies include numpy and scipy.
 
-**3. Install intel oneapi**
+**3. Build the native C helpers**
 
-**4. Compile the code with intel compiler:**
-- icx -fPIC -Wall -Wextra -qopenmp -c ci_solver.c orbital.c 
-- icx -shared -o cfunctions.so ci_solver.o orbital.o
+See `BUILDING.md` for Linux/Intel and macOS/Apple Silicon options.
 
-**5. Run tests** 
-- From the main repository directory (qed-ci), move into the source directory with `cd src/`
-- run tests with `pytest -v`
+Quick examples:
+- `make`
+- `make CC=icx`
+- `make CC=clang BACKEND=accelerate`
+
+**4. Run tests**
+- From the repository root (`qed-ci/`), run `pytest -v tests/`
