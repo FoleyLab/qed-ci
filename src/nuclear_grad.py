@@ -56,15 +56,6 @@ def get_memory_usage():
 
 class nuclear_grad(PFHamiltonianGenerator):
     def build_B_t(self, Z_vector, eigenvecs, B_t, A):
-        #self.h_tilde = np.einsum("sr,sj->rj", Z_vector, self.H_spatial2[:, :self.n_occupied], optimize = "optimal")
-        #self.h_tilde += np.einsum("rs,sj->rj", self.H_spatial2, Z_vector[:, :self.n_occupied], optimize = "optimal")
-
-        #self.d_cmo_tilde = np.einsum("sr,sj->rj", Z_vector, self.d_cmo[:, :self.n_occupied], optimize = "optimal")
-        #self.d_cmo_tilde += np.einsum("rs,sj->rj", self.d_cmo, Z_vector[:, :self.n_occupied], optimize = "optimal")
-        #self.J_tilde = np.einsum("sr,klsj->klrj", Z_vector, self.J[:, :, :, :self.n_occupied], optimize = "optimal")
-        #self.J_tilde += np.einsum("sj,klrs->klrj", Z_vector[:, :self.n_occupied], self.J, optimize = "optimal")
-        #self.J_tilde += np.einsum("sk,jlrs->klrj", Z_vector[:, :self.n_occupied], self.K, optimize = "optimal")
-        #self.J_tilde += np.einsum("sl,jkrs->klrj", Z_vector[:, :self.n_occupied], self.K, optimize = "optimal")
         self.occupied_h_t = np.einsum("sr,sj->rj", Z_vector[:,:self.n_occupied], self.H_spatial2[:, :self.n_occupied], optimize = "optimal")
         self.occupied_h_t += np.einsum("rs,sj->rj", self.H_spatial2[:self.n_occupied,:], Z_vector[:, :self.n_occupied], optimize = "optimal")
 
